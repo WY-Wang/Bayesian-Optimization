@@ -5,16 +5,16 @@ from ..utils import tkwargs
 from ..base import OptimizationProblem
 
 class DTLZ(OptimizationProblem):
-    def __init__(self, ndim, nobj, ordinal):
+    def __init__(self, ndim, nobj, ordinal, noise_std=0.0):
         self.super_prob = get_problem("DTLZ" + str(ordinal), n_var=ndim, n_obj=nobj)
-        super().__init__(ndim=self.super_prob.n_var, nobj=self.super_prob.n_obj)
+        super().__init__(ndim=self.super_prob.n_var, nobj=self.super_prob.n_obj, noise_std=noise_std)
         self.ordinal = ordinal
         self.name += str(ordinal)
 
         self.lb = torch.tensor(self.super_prob.xl, **tkwargs)
         self.ub = torch.tensor(self.super_prob.xu, **tkwargs)
 
-    def eval(self, x):
+    def _eval(self, x):
         x = torch.atleast_2d(x).to(**tkwargs)
         out = {"F": None, "CV": None, "G": None, "dF": None, "dG": None}
         self.super_prob._evaluate(x.numpy(), out=out, return_as_dictionary=True)

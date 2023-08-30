@@ -4,15 +4,19 @@ import torch
 
 
 class OptimizationProblem(ABC):
-    def __init__(self, ndim, nobj = 1):
+    def __init__(self, ndim, nobj, noise_std):
         self.ndim = ndim
         self.nobj = nobj
-        self.name = self.__class__.__name__
+        self.noise_std = noise_std
 
-    def eval_noisy(self, x, mean=0.0, std=1.0):
-        fx = self.eval(x)
-        return fx.add(torch.randn_like(fx).mul(std).add(mean))
+        self.name = self.__class__.__name__
+        if self.noise_std > 0.0:
+            self.name += f"({self.noise_std})"
+
+    def eval(self, x):
+        fx = self._eval(x)
+        return fx.add(torch.randn_like(fx).mul(self.noise_std))
 
     @abstractmethod
-    def eval(self, x):
+    def _eval(self, x):
         raise NotImplementedError
