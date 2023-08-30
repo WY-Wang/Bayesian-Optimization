@@ -39,8 +39,6 @@ class Surrogate(ABC):
 
         _fig, _ax = (None, ax) if ax else plt.subplots(1, 1, figsize=(4, 3))
 
-        _ax.plot(torch.squeeze(self.X).numpy(), torch.squeeze(self.fX).numpy(), "k*", label="Observations")
-        _ax.plot(torch.squeeze(test_x).numpy(), torch.squeeze(pred["mean"]).numpy(), "b-", label=self.__class__.__name__)
         if options.get("bound"):
             try:
                 _ax.fill_between(torch.squeeze(test_x).numpy(), torch.squeeze(pred["lowerbound"]).numpy(), torch.squeeze(pred["upperbound"]).numpy(), alpha=0.5)
@@ -52,6 +50,9 @@ class Surrogate(ABC):
                     _ax.plot(torch.squeeze(test_x).numpy(), torch.squeeze(pred["dist"].sample(torch.Size([1]))).numpy(), "r-")
             except:
                 print(f"\"sample\" is not defined for {self.__class__.__name__}")
+
+        _ax.plot(torch.squeeze(test_x).numpy(), torch.squeeze(pred["mean"]).numpy(), "b-", label=self.__class__.__name__)
+        _ax.plot(torch.squeeze(self.X).numpy(), torch.squeeze(self.fX).numpy(), "k*", label="Observations")
 
         _ax.legend()
         if not ax: plt.show()

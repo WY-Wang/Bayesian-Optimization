@@ -1,4 +1,5 @@
 import glob
+import torch
 import numpy as np
 
 
@@ -18,10 +19,13 @@ class DataHandler:
 
             algo["X"] = []
             algo["fX"] = []
+            algo["fX_observe"] = []
             for filename in filenames:
-                f = np.loadtxt(filename)
-                algo["X"].append(f[:, :self.prob.ndim])
-                algo["fX"].append(f[:, self.prob.ndim])
+                record = np.loadtxt(filename)
+                algo["X"].append(record[:, :self.prob.ndim])
+                algo["fX_observe"].append(record[:, self.prob.ndim])
+                algo["fX"].append(self.prob._eval(torch.tensor(record[:, :self.prob.ndim])).numpy())
+
 
     def analyze_solutions(self):
         for algo in self.algos:

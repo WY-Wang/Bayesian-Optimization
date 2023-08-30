@@ -19,9 +19,6 @@ class SurrogateOptimization(ABC):
         self.X = torch.empty(size=(0, self.prob.ndim))
         self.fX = torch.empty(size=(0, self.prob.nobj))
 
-        self.xbest = None
-        self.fxbest = None
-
         self.time = time.time()
         self.nevals = 0
         self.initialized = False
@@ -29,9 +26,6 @@ class SurrogateOptimization(ABC):
     def reset(self):
         self.X = torch.empty(size=(0, self.prob.ndim))
         self.fX = torch.empty(size=(0, self.prob.nobj))
-
-        self.xbest = None
-        self.fxbest = None
 
         self.time = time.time()
         self.nevals = 0
@@ -47,9 +41,6 @@ class SurrogateOptimization(ABC):
         self.X = torch.vstack((self.X, x))
         self.fX = torch.vstack((self.fX, fx))
 
-        index = torch.squeeze(torch.argmin(self.fX, dim=0, keepdim=True))
-        self.xbest = self.X[index, :]
-        self.fxbest = self.fX[index, :]
         self.nevals = self.ninits
 
     def run(self, T, npts=1, n_restart=10, plot_surrogate=False, plot_progress=False, print_progress=False):
@@ -79,17 +70,9 @@ class SurrogateOptimization(ABC):
         self.X = torch.vstack((self.X, x))
         self.fX = torch.vstack((self.fX, fx))
 
-        _x = torch.vstack((x, torch.atleast_2d(self.xbest)))
-        _fx = torch.vstack((fx, torch.atleast_2d(self.fxbest)))
-        index = torch.squeeze(torch.argmin(_fx, dim=0, keepdim=True))
-        self.xbest = _x[index, :]
-        self.fxbest = _fx[index, :]
-
         if print_progress:
             print(f"Evaluations = {self.nevals}: \n"
-                  f"\tfx = {fx.numpy()}, x = {x.numpy()} \n"
-                  f"\tfxbest = {self.fxbest.numpy()}, xbest = {self.xbest.numpy()}")
-
+                  f"\teval(x) = {fx.numpy()}, _eval(x) = {self.prob._eval(x)}  x = {x.numpy()} \n")
         if plot_progress: self.plot()
 
         return x, fx
@@ -105,7 +88,7 @@ class SurrogateOptimization(ABC):
             test_x = np.linspace(self.prob.lb[0], self.prob.ub[0], nrows)
             test_y = np.linspace(self.prob.lb[1], self.prob.ub[1], ncols)
             test_xy = torch.tensor([[_x, _y] for _y in test_y for _x in test_x])
-            test_z = self.prob.eval(test_xy).reshape((ncols, nrows))
+            test_z = self.prob._eval(test_xy).reshape((ncols, nrows))
 
             ct = ax.contour(test_x, test_y, test_z, 50, cmap="binary_r")
             fig.colorbar(ct, ax=ax)
