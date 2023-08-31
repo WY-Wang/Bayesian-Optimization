@@ -9,9 +9,8 @@ class OptimizationProblem(ABC):
         self.nobj = nobj
         self.noise_std = noise_std
 
-        self.name = self.__class__.__name__
-        if self.noise_std > 0.0:
-            self.name += f"({self.noise_std})"
+        self._name = self.__class__.__name__
+        self.name = self._name + f"({self.noise_std})"
 
     def eval(self, x):
         fx = self._eval(x)

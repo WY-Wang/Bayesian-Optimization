@@ -50,5 +50,5 @@ class DataHandler:
 
             line = ax.plot(iter, avg, label=algo["name"])
             if show_CI:
-                ax.fill_between(iter, avg, avg + 1.96 * std / np.sqrt(algo["nruns"]), color=line[0]._color, alpha=0.3)
-                ax.fill_between(iter, avg, avg - 1.96 * std / np.sqrt(algo["nruns"]), color=line[0]._color, alpha=0.3)
+                ax.fill_between(iter, np.squeeze(avg), np.squeeze(avg + 1.96 * std / np.sqrt(algo["nruns"])), color=line[0]._color, alpha=0.3)
+                ax.fill_between(iter, np.squeeze(avg), np.squeeze(avg - 1.96 * std / np.sqrt(algo["nruns"])), color=line[0]._color, alpha=0.3)
