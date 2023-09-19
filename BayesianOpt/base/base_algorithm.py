@@ -43,24 +43,26 @@ class SurrogateOptimization(ABC):
 
         self.nevals = self.ninits
 
-    def run(self, T, npts=1, n_restart=10, plot_surrogate=False, plot_progress=False, print_progress=False):
+    def run(self, T, npts=1, maxiter=15000, n_restart=10, plot_surrogate=False, plot_progress=False, print_progress=False):
         if not self.initialized:
             self.initialization()
 
         while self.nevals < T:
             self._run(
                 npts=npts,
+                maxiter=maxiter,
                 n_restart=n_restart,
                 plot_surrogate=plot_surrogate,
                 plot_progress=plot_progress,
                 print_progress=print_progress,
             )
 
-    def _run(self, npts, n_restart, plot_surrogate, plot_progress, print_progress):
+    def _run(self, npts, maxiter, n_restart, plot_surrogate, plot_progress, print_progress):
         x = self.acquisition.optimize(
             model=self.model,
             npts=npts,
-            n_restarts=n_restart
+            maxiter=maxiter,
+            n_restarts=n_restart,
         )
         fx = self.prob.eval(x)
         self.nevals += x.shape[0]
@@ -82,7 +84,20 @@ class SurrogateOptimization(ABC):
         ax = fig.add_subplot(111)
 
         if self.prob.ndim == 1:
-            self.model.plot(ax=ax, bound=True)
+            test_x = torch.unsqueeze(torch.linspace(self.prob.lb[0], self.prob.ub[0], 1000), dim=1)
+            test_y = self.prob._eval(test_x)
+            pred = self.model.predict(test_x)
+
+            ax.plot(torch.squeeze(test_x).numpy(), torch.squeeze(test_y).numpy(), "b-", label="True")
+            ax.plot(torch.squeeze(test_x).numpy(), torch.squeeze(pred["mean"]).numpy(), "r--", label=self.model.__class__.__name__)
+
+            ax.plot(torch.squeeze(self.X[:, 0]).numpy(), torch.squeeze(self.fX).numpy(), "k*", label="Observations")
+            ax.plot(torch.squeeze(self.X[-1, 0]).numpy(), torch.squeeze(self.fX[-1, 0]).numpy(), "b*", label="New")
+
+            ax.set_xlabel("x")
+            ax.set_ylabel("f(x)")
+
+            ax.legend()
         elif self.prob.ndim == 2:
             nrows, ncols = 200, 200
             test_x = np.linspace(self.prob.lb[0], self.prob.ub[0], nrows)

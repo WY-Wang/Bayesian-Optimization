@@ -1,13 +1,15 @@
 import torch
 import gpytorch
-from gpytorch.constraints import Interval
+from gpytorch.models import ExactGP
+from botorch.models.gpytorch import GPyTorchModel
+from gpytorch.constraints import Interval, GreaterThan
 
 from ..base import Surrogate
 from ..utils import tkwargs, to_unit_box
 
 
 
-class ExactGPCoreModel(gpytorch.models.ExactGP):
+class GPCoreModel(ExactGP, GPyTorchModel):
     def __init__(
         self,
         train_x,
@@ -32,7 +34,7 @@ class ExactGPCoreModel(gpytorch.models.ExactGP):
 
 
 
-class ExactGPModel(Surrogate):
+class GaussianProcess(Surrogate):
     def __init__(
         self,
         ndim: int,
@@ -50,7 +52,7 @@ class ExactGPModel(Surrogate):
                 )
             ))
         self.likelihood = options.get("likelihood",
-            gpytorch.likelihoods.GaussianLikelihood(noise_constraint=Interval(1e-8, 1e-3)))
+            gpytorch.likelihoods.GaussianLikelihood(noise_constraint=Interval(1e-6, 1e-2)))
 
         self.optimizer = options.get("optimizer")
         self.mll = options.get("mll")
@@ -63,7 +65,7 @@ class ExactGPModel(Surrogate):
     def fit(self):
         if not self.updated:
             self._X = to_unit_box(self.X, self.lb, self.ub)
-            self.model = ExactGPCoreModel(
+            self.model = GPCoreModel(
                 train_x=self._X,
                 train_y=self.fX[:, 0],
                 mean_module=self.mean_module,
@@ -97,16 +99,15 @@ class ExactGPModel(Surrogate):
             self.updated = True
 
     def predict(self, x):
-        pred = {}
         self.fit()
 
         x = to_unit_box(torch.atleast_2d(x).to(**tkwargs), self.lb, self.ub)
         self.model.eval()
+
+        pred = {}
         with torch.no_grad(), gpytorch.settings.fast_pred_var():
-            # pred_y = self.model(x)
-            pred_y = self.model.likelihood(self.model(x))
+            pred_y = self.model.posterior(x, observation_noise=False).mvn
             pred["dist"] = pred_y
             pred["mean"] = torch.unsqueeze(pred_y.mean, dim=1)
             pred["variance"] = torch.unsqueeze(pred_y.variance, dim=1)
-            pred["lowerbound"], pred["upperbound"] = pred_y.confidence_region()
             return pred

@@ -1,7 +1,5 @@
 import torch
 
-DTYPE = torch.double
-
 def to_unit_box(x, lb = None, ub = None):
     if lb is None:
         lb = torch.amin(x, dim=0, keepdim=False)

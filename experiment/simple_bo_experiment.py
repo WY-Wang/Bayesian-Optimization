@@ -1,7 +1,7 @@
 import torch
 
 from BayesianOpt.problem import Rastrigin, Branin
-from BayesianOpt.model import ExactGPModel
+from BayesianOpt.model import GaussianProcess
 from BayesianOpt.design import QuasiMCDesign
 from BayesianOpt.acquisition import UCB, EI
 from BayesianOpt.base import SurrogateOptimization
@@ -19,7 +19,7 @@ def run_experiments():
 
 
 def run_single_trial(prob, n_iterations, trial_id, random_seed):
-    model = ExactGPModel(
+    model = GaussianProcess(
         ndim=prob.ndim,
         lb=prob.lb,
         ub=prob.ub,

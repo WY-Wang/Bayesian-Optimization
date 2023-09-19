@@ -17,10 +17,11 @@ setuptools.setup(
     install_requires=[
         "numpy>=1.24.3",
         "torch>=2.0.0",
-        "gpytorch>=1.10",
         "matplotlib>=3.7.1",
         "pyDOE2",
         "pymoo",
+        "gpytorch==1.6.0",
+        "botorch==0.6.2",
     ],
 
     packages=setuptools.find_packages(),

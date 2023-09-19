@@ -1,7 +1,7 @@
 import torch
 
 from BayesianOpt.problem import Rastrigin
-from BayesianOpt.model import ExactGPModel
+from BayesianOpt.model import GaussianProcess
 from BayesianOpt.design import QuasiMCDesign
 from BayesianOpt.acquisition import EI
 from BayesianOpt.base import SurrogateOptimization
@@ -9,9 +9,9 @@ from BayesianOpt.base import SurrogateOptimization
 RANDOM_SEED = 47
 torch.manual_seed(RANDOM_SEED)
 
-prob = Rastrigin(ndim=1, noise_std=0.1)
+prob = Rastrigin(ndim=1)
 
-model = ExactGPModel(
+model = GaussianProcess(
     ndim=prob.ndim,
     lb=prob.lb,
     ub=prob.ub,
@@ -39,7 +39,11 @@ algorithm = SurrogateOptimization(
 )
 
 algorithm.run(
-    T=10,
-    plot_progress=False,
+    T=50,
+    npts=1,
+    maxiter=15000,
+    n_restart=10,
+    plot_progress=True,
+    plot_surrogate=False,
     print_progress=True,
 )

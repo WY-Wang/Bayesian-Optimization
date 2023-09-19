@@ -12,7 +12,7 @@ class Acquisition(ABC):
         self.ub = ub
         self.points = torch.empty((0, self.ndim), **tkwargs)
 
-    def optimize(self, model, npts=1, maxiter=15000, n_restarts=10):
+    def optimize(self, model, npts, maxiter, n_restarts):
         self.model = model
         self.points = torch.empty((0, self.ndim), **tkwargs)
 
@@ -33,7 +33,7 @@ class Acquisition(ABC):
 
         return self.points
 
-    def optimize_de(self, model, npts=1, popsize=15, maxgen=200):
+    def optimize_de(self, model, npts, popsize, maxgen):
         self.model = model
         self.points = torch.empty((0, self.ndim), **tkwargs)
 

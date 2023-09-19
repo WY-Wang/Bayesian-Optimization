@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-from ..utils import tkwargs, from_unit_box
+from ..utils import tkwargs
 from ..base import Acquisition
 from ..design import LatinHypercubeDesign
 
@@ -12,7 +12,7 @@ class TS(Acquisition):
         super().__init__(ndim=ndim, lb=lb, ub=ub)
         self.dtol = dtol
 
-    def optimize(self, model, npts=1, maxiter=1000, n_restarts=0):
+    def optimize(self, model, npts, maxiter, n_restarts):
         self.model = model
         self.design = LatinHypercubeDesign(ndim=self.ndim, lb=self.lb, ub=self.ub, random_state=None)
 
