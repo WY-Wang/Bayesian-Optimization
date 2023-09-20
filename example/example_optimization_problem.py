@@ -15,7 +15,7 @@ y = np.linspace(problem.lb[1], problem.ub[1], ncols)
 xy = torch.tensor([[_x, _y] for _y in y for _x in x])
 z = problem.eval(xy).reshape((ncols, nrows))
 
-fig = plt.figure(figsize=(4, 3))
+fig = plt.figure(figsize=(8, 6))
 ax = fig.add_subplot(111)
 
 ct = ax.contour(x, y, z, 50, cmap="binary_r")

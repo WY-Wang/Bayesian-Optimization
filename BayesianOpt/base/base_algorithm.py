@@ -43,7 +43,7 @@ class SurrogateOptimization(ABC):
 
         self.nevals = self.ninits
 
-    def run(self, T, npts=1, maxiter=15000, n_restart=10, plot_surrogate=False, plot_progress=False, print_progress=False):
+    def run(self, T, npts=1, maxiter=15000, n_restart=10, plot_progress=False, print_progress=False):
         if not self.initialized:
             self.initialization()
 
@@ -52,12 +52,11 @@ class SurrogateOptimization(ABC):
                 npts=npts,
                 maxiter=maxiter,
                 n_restart=n_restart,
-                plot_surrogate=plot_surrogate,
                 plot_progress=plot_progress,
                 print_progress=print_progress,
             )
 
-    def _run(self, npts, maxiter, n_restart, plot_surrogate, plot_progress, print_progress):
+    def _run(self, npts, maxiter, n_restart, plot_progress, print_progress):
         x = self.acquisition.optimize(
             model=self.model,
             npts=npts,
@@ -68,7 +67,6 @@ class SurrogateOptimization(ABC):
         self.nevals += x.shape[0]
 
         self.model.add_points(x=x, fx=fx)
-        if plot_surrogate: self.model.plot(bound=True)
         self.X = torch.vstack((self.X, x))
         self.fX = torch.vstack((self.fX, fx))
 

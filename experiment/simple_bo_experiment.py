@@ -3,7 +3,7 @@ import torch
 from BayesianOpt.problem import Rastrigin, Branin
 from BayesianOpt.model import GaussianProcess
 from BayesianOpt.design import QuasiMCDesign
-from BayesianOpt.acquisition import UCB, EI
+from BayesianOpt.acquisition import UCB
 from BayesianOpt.base import SurrogateOptimization
 
 
@@ -48,9 +48,11 @@ def run_single_trial(prob, n_iterations, trial_id, random_seed):
 
     algorithm.run(
         T=n_iterations,
+        npts=1,
+        maxiter=15000,
+        n_restart=10,
         plot_progress=False,
-        plot_surrogate=False,
-        print_progress=False,
+        print_progress=True,
     )
     algorithm.save_results(root="../test_result", trial_id=trial_id)
 

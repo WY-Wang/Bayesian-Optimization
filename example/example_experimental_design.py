@@ -18,7 +18,7 @@ design = QuasiMCDesign(
     random_state=RANDOM_SEED,
 )
 
-fig, axes = plt.subplots(1, 1, figsize=(4, 3))
+fig, axes = plt.subplots(1, 1, figsize=(8, 6))
 
 samples = design.generate_points(npts=10)
 axes.plot(samples[:, 0].numpy(), samples[:, 1].numpy(), "ko")

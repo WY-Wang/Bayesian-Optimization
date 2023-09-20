@@ -9,7 +9,7 @@ from BayesianOpt.base import SurrogateOptimization
 RANDOM_SEED = 47
 torch.manual_seed(RANDOM_SEED)
 
-prob = Rastrigin(ndim=1)
+prob = Rastrigin(ndim=1, noise_std=1.0)
 
 model = GaussianProcess(
     ndim=prob.ndim,
@@ -44,6 +44,5 @@ algorithm.run(
     maxiter=15000,
     n_restart=10,
     plot_progress=True,
-    plot_surrogate=False,
     print_progress=True,
 )
