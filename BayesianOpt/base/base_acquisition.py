@@ -12,9 +12,10 @@ class Acquisition(ABC):
         self.ub = ub
         self.points = torch.empty((0, self.ndim), **tkwargs)
 
-    def optimize(self, model, npts, maxiter, n_restarts):
+    def optimize(self, model, npts, maxiter, n_restarts, **options):
         self.model = model
         self.points = torch.empty((0, self.ndim), **tkwargs)
+        self.options = options
 
         for _ in range(npts):
             x = None
@@ -33,9 +34,10 @@ class Acquisition(ABC):
 
         return self.points
 
-    def optimize_de(self, model, npts, popsize, maxgen):
+    def optimize_de(self, model, npts, popsize, maxgen, **options):
         self.model = model
         self.points = torch.empty((0, self.ndim), **tkwargs)
+        self.options = options
 
         def func(x):
             return self.merit(x).numpy()
@@ -46,7 +48,7 @@ class Acquisition(ABC):
                 bounds=torch.vstack((self.lb, self.ub)).T.numpy(),
                 popsize=popsize,
                 maxiter=maxgen,
-                seed=None,
+                seed=self.options["seed"],
             )
 
             x = torch.tensor(result.x.copy()).to(**tkwargs)

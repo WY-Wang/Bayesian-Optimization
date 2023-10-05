@@ -12,7 +12,7 @@ class TS(Acquisition):
         super().__init__(ndim=ndim, lb=lb, ub=ub)
         self.dtol = dtol
 
-    def optimize(self, model, npts, maxiter, n_restarts):
+    def optimize(self, model, npts, maxiter, n_restarts, **options):
         self.model = model
         self.design = LatinHypercubeDesign(ndim=self.ndim, lb=self.lb, ub=self.ub, random_state=None)
 
