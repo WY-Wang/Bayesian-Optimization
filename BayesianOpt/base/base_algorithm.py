@@ -5,6 +5,8 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
+from ..utils import tkwargs
+
 
 class SurrogateOptimization(ABC):
     def __init__(self, prob, model, design, acquisition, ninits=None):
@@ -16,16 +18,16 @@ class SurrogateOptimization(ABC):
 
         self.ninits = ninits if ninits else 2 * (prob.ndim + 1)
 
-        self.X = torch.empty(size=(0, self.prob.ndim))
-        self.fX = torch.empty(size=(0, self.prob.nobj))
+        self.X = torch.empty(size=(0, self.prob.ndim), **tkwargs)
+        self.fX = torch.empty(size=(0, self.prob.nobj), **tkwargs)
 
         self.time = time.time()
         self.nevals = 0
         self.initialized = False
 
     def reset(self):
-        self.X = torch.empty(size=(0, self.prob.ndim))
-        self.fX = torch.empty(size=(0, self.prob.nobj))
+        self.X = torch.empty(size=(0, self.prob.ndim), **tkwargs)
+        self.fX = torch.empty(size=(0, self.prob.nobj), **tkwargs)
 
         self.time = time.time()
         self.nevals = 0

@@ -13,7 +13,7 @@ setuptools.setup(
     author="Wenyu Wang",
     author_email="wenyu_wang@u.nus.edu",
 
-    python_requires=">=3.10",
+    python_requires=">=3.9",
     install_requires=[
         "torch~=2.0.0",
         "gpytorch~=1.11",

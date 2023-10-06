@@ -22,9 +22,9 @@ class Acquisition(ABC):
             for _ in range(n_restarts + 1):
                 result = scpopt.minimize(
                     fun=self.merit,
-                    x0=from_unit_box(torch.rand(self.ndim, **tkwargs), self.lb, self.ub),
+                    x0=from_unit_box(torch.rand(self.ndim, **tkwargs), self.lb, self.ub).cpu(),
                     method="L-BFGS-B",
-                    bounds=torch.vstack((self.lb, self.ub)).T,
+                    bounds=torch.vstack((self.lb, self.ub)).T.cpu(),
                     options={"maxiter": maxiter},
                 )
                 _x = result.x.copy()
@@ -45,7 +45,7 @@ class Acquisition(ABC):
         for _ in range(npts):
             result = scpopt.differential_evolution(
                 func=func,
-                bounds=torch.vstack((self.lb, self.ub)).T.numpy(),
+                bounds=torch.vstack((self.lb, self.ub)).T.cpu().numpy(),
                 popsize=popsize,
                 maxiter=maxgen,
                 seed=self.options["seed"],

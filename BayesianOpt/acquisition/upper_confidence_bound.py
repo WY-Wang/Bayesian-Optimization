@@ -28,4 +28,4 @@ class UCB(Acquisition): # or LCB
             dmerit = torch.amin(dists, dim=1, keepdim=True)
             cb[dmerit < self.dtol] = torch.tensor(np.inf, **tkwargs)
 
-        return cb
+        return cb.cpu()

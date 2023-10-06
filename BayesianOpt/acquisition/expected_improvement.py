@@ -27,4 +27,4 @@ class EI(Acquisition):
             dmerit = torch.amin(dists, dim=1, keepdim=True)
             ei[dmerit < self.dtol] = torch.tensor(-np.inf, **tkwargs)
 
-        return -ei
+        return -ei.cpu()

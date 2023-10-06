@@ -44,4 +44,4 @@ class TS(Acquisition):
             dmerit = torch.amin(dists, dim=1, keepdim=True)
             ts[dmerit < self.dtol] = torch.tensor(np.inf, **tkwargs)
 
-        return ts
+        return ts.cpu()
