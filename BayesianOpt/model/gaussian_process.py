@@ -62,7 +62,7 @@ class GaussianProcess(Surrogate):
     def reset(self):
         super().reset()
 
-    def fit(self):
+    def fit(self, optimize):
         if not self.updated:
             self._X = to_unit_box(self.X, self.lb, self.ub)
             self.model = GPCoreModel(
@@ -75,31 +75,32 @@ class GaussianProcess(Surrogate):
             ).to(**tkwargs)
             self.model.train()
 
-            if self.optimizer is None:
-                self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.1)
-            if self.mll is None:
-                self.mll = gpytorch.mlls.ExactMarginalLogLikelihood(self.model.likelihood, self.model)
+            if optimize:
+                if self.optimizer is None:
+                    self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.1)
+                if self.mll is None:
+                    self.mll = gpytorch.mlls.ExactMarginalLogLikelihood(self.model.likelihood, self.model)
+    
+                max_cholesky_size = float("inf")
+                with gpytorch.settings.max_cholesky_size(max_cholesky_size):
+                    for i in range(self.epochs):
+                        self.optimizer.zero_grad()
+    
+                        output = self.model(self._X)
+                        loss = - self.mll(output, self.fX[:, 0])
+                        loss.backward()
+    
+                        # print(f"Epoch {i + 1}/{self.epochs} - \tloss: {loss.item():.3f}, "
+                        #       f"\tlengthscale: {self.model.covar_module.base_kernel.lengthscale.item():.3f} "
+                        #       f"\tnoise: {self.model.likelihood.noise.item():.3f}"
+                        # )
+    
+                        self.optimizer.step()
+    
+                self.updated = True
 
-            max_cholesky_size = float("inf")
-            with gpytorch.settings.max_cholesky_size(max_cholesky_size):
-                for i in range(self.epochs):
-                    self.optimizer.zero_grad()
-
-                    output = self.model(self._X)
-                    loss = - self.mll(output, self.fX[:, 0])
-                    loss.backward()
-
-                    # print(f"Epoch {i + 1}/{self.epochs} - \tloss: {loss.item():.3f}, "
-                    #       f"\tlengthscale: {self.model.covar_module.base_kernel.lengthscale.item():.3f} "
-                    #       f"\tnoise: {self.model.likelihood.noise.item():.3f}"
-                    # )
-
-                    self.optimizer.step()
-
-            self.updated = True
-
-    def predict(self, x):
-        self.fit()
+    def predict(self, x, optimize=True):
+        self.fit(optimize=optimize)
 
         x = to_unit_box(torch.atleast_2d(x).to(**tkwargs), self.lb, self.ub)
         self.model.eval()
