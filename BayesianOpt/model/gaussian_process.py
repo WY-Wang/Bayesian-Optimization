@@ -98,17 +98,15 @@ class GaussianProcess(Surrogate):
                         self.optimizer.step()
     
                 self.updated = True
-
-    def predict(self, x, optimize=True):
+    
+    def posterior(self, x, optimize=True, grad=False):
         self.fit(optimize=optimize)
-
+        
         x = to_unit_box(torch.atleast_2d(x).to(**tkwargs), self.lb, self.ub)
         self.model.eval()
-
-        pred = {}
-        with torch.no_grad(), gpytorch.settings.fast_pred_var():
-            pred_y = self.model.posterior(x, observation_noise=False).mvn
-            pred["dist"] = pred_y
-            pred["mean"] = torch.unsqueeze(pred_y.mean, dim=1)
-            pred["variance"] = torch.unsqueeze(pred_y.variance, dim=1)
-            return pred
+        
+        if not grad:
+            with torch.no_grad(), gpytorch.settings.fast_pred_var():
+                return self.model.posterior(x, observation_noise=False)
+        else:
+            return self.model.posterior(x, observation_noise=False)
