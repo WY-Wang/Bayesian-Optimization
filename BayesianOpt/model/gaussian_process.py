@@ -110,3 +110,5 @@ class GaussianProcess(Surrogate):
                 return self.model.posterior(x, observation_noise=False)
         else:
             return self.model.posterior(x, observation_noise=False)
+        
+    def predict(self, x): pass
