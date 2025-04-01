@@ -13,11 +13,11 @@ setuptools.setup(
     author="Wenyu Wang",
     author_email="wenyu_wang@u.nus.edu",
 
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     install_requires=[
         "torch~=2.0.0",
         "gpytorch~=1.11",
-        "botorch~=0.8.5",
+        "botorch~=0.9.0",
         "numpy",
         "matplotlib",
         "pyDOE2",
