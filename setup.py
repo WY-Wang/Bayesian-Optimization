@@ -17,7 +17,7 @@ setuptools.setup(
     install_requires=[
         "torch~=2.0.0",
         "gpytorch~=1.11",
-        "botorch~=0.9.0",
+        "botorch~=0.8.5",
         "numpy",
         "matplotlib",
         "pyDOE2",
